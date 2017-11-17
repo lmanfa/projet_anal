@@ -583,7 +583,7 @@ On remarque que l'on a $t_{r_{sth}} \approx \dfrac{t_{r_{s}}}{2}$
 
 \subsubsection{Amélioration du temps de montée $t_{r_{DEL}}$}
 
-Pour améliorer $t_{r_{DEL}}$, on place une résistance et une capa (en série) en parallèle de la résistance $R_6$ comme sur le schémà ci-dessous :
+Pour améliorer $t_{r_{DEL}}$, on place une résistance et une capacité (en série) en parallèle de la résistance $R_6$ comme sur le schéma ci-dessous :
 
 \begin{center}
 \includegraphics[width=0.15\textwidth]{montage_amelio_trdel.PNG}
@@ -640,7 +640,7 @@ On met en place le montage suivant :
 \includegraphics[width=1\textwidth]{Montage_DEL.PNG}
 \end{center}
 
-et on additionne le courant traversant $R_6$ et celui traversant $r_6$. O obtient :
+et on additionne le courant traversant $R_6$ et celui traversant $r_6$. On obtient :
 
 \begin{center}
 \includegraphics[width=1\textwidth]{Courant_diode_opt.png}
@@ -654,17 +654,129 @@ On étudie la structure suivante : \\
 \includegraphics[width=.5\textwidth]{transimos.PNG}
 \end{center}
 
-En théorie, le transistor $Q_5$ n'est pas nécessaire.\\
-$$Pourquoi$$
+En théorie, le transistor $Q_5$ n'est pas nécessaire. En effet le transistor MOS se comporte comme un condensateur en entrée alors que le transistor bipolaire nécessite une adaptation car il s'apparente à une résistance.\\
+
 D'après la datasheet on a la tension de seuil $V_F$ = 1,4V lorsqu'elle est parcourue par un courant $I_0$ = 100mA.\\
 On cherche maintenant la résistance $R_{DSon}$ du transistor pour une tension de commande de 5V, on a $R_{DSon}$ = 1,8 $\Omega$. On peut donc en déduire $R_D$ :\\
 On a $(R_S + R_{DSon} + R_D) I_0 = V_{dd}$\\
 D'où $R_D$ = $\dfrac{V_{dd}}{I_0} - R_S -R_{DSon}$ = $46,2 \Omega$\\
 On calcule la puissance que doit dissiper la résistance $R_D$ afin de savoir quel type de boîtier nous devrons utiliser.\\
 On a : $2P = UI_0$ = $R_DI_0^2$ = 0,462 W. Il faut donc utiliser un boîtier qui permet de dissiper une puissance $\dfrac{1}{4}W$.\\
+On cherche maintenant à caractériser la commutation à l'état ON et OFF du transistor MOS en ne câblant que $Q_6$ avec une résistance de grille $R_G$ dont la valeur est égale à l'impédance de sortie du VCO ce qui permet de remplacer le VCO par cette résistance lors des tests de la DEL.
+$$Circuit_test_commu$$
+Pour cela on mesure les différents temps correspondants aux différentes phases en utilisant l'annexe F, on a le temps d'allumage donné par :  $t_{on} = t_2 + t_3$. On cherche donc $t_2$ et $t_3$ :  \\
+\begin{center}
+
+$t_2$ = - $R_G$ ($C_{GS} + C_{GD}$) $ ln(1-\dfrac{V_{GP}}{V_G}$)
+$t_3$ = $C_{GD}R_G$ $\dfrac{V_{dd}}{V_G - V_{GP}}$
+
+\end{center}
+On prend $V_{GP}$ = 3.2 V ( lecture sur le graphique de la datasheet ) et $V_G$ = 5V.\\
+$$Datasheet$$
+On trouve $t_2$ = 20 ns et $t_3$ = 7 ns, ce qui donne $t_{on}$ = 27 ns.
+Pour calculer le temps de montée $t_r$ = $t_2 - t_1$ on calcule $t_1$. Pour cela on réutilise la formule pour $t_2$ en prenant $V_{GP}$ = 2.1V. On trouve $t_1$ = 10.6 ns. D'où $t_r$ = 9.4 ns.\\
+On câble maintenant la DEL. On obtient : \\
+$$photo$$
+On cherche maintenant à comparer les temps mesurés, théoriques et simulés : \\
+\begin{center}
+\begin{tabular}{| l | c | c | c | c | c |}
+\hline
+ $$ & $t_1$ & $t_2$ & $t_3$ & $t_{on}$ & $t_r$\\
+\hline
+Théorie & 10.6 n & 20 n & 7 n & 27 n & 9.4 n   \\
+\hline
+Simulation  & x & x & x & 35 n & x   \\
+\hline
+Pratique  & 19 n & 24 n & 45 n & 69 n & 5 n  \\
+\hline
+\end{tabular}
+\end{center}
+Le transistor MOSFET n'est pas réaliste, il monte directement à 2V, comme s'il était chargé à courant constant, ce qui permet d'expliquer les importantes différences.
+
+On souhaite mesurer à l'aide du circuit transimpédance le temps de montée global $t_{rs}$ de la chaîne en faisant attention à ne pas saturer le signal de sortie du transimpédance en plaçant le récepteur optique à une distance "raisonnable" de la DEL d'émission. On obtient : \\
+$$sansrc$$
+D'où $t_{rs}$ = 1.0 $\mu$ s.\\
+On mesure $t_{ri}$ aux bornes de $R_6$, on obtient $t_{ri}$= 38 ns. Dans la datasheet on trouve 20 ns, ce qui est plus ou moins cohérent.\\
+Le temps de montée associé à la décroissance du $1^{er}$ ordre aux hautes fréquences avec une fréquence de coupure $f_{chf}$ = 1.2 MHz est : 
+\begin{center}
+$t_{rz}  = \dfrac{0.35}{f_{chf} } = 2.92.10^{-7} s$
+
+\end{center}
+
+On a : \\
+\begin{center}
+$t_{rs} \approx 1.1 \sqrt{t_{rDEL}^2 + t_{ri}^2 + t_{rz}^2 } $
+\end{center}
+Avec : \\
+$t_{rDEL} = 0.5 \mu s$ ;\\
+$t_{ri} =38 ns$ ; \\
+$ t_{rz} = 2.92.10^{-7}s$ .\\
+D'où $t_{rs} = 0.64 \mu  s$.
+On a un rapport de $\dfrac{2}{3}$ entre $t_{rsMesure}$ et $t_{rsCalcul}$, ce qui est normal.\\
+On cherche maintenant à réduire ce temps de montée or, comme les temps de montée s'additionnent au carré, c'est la valeur la plus importante qui impose le résultat final. Ainsi pour diminuer $t_{rs}$ il faut réduire $t_{rDEL}$.\\
 
 
+Pour cela, on place une résistance et une capacité (en série) en parallèle de la résistance $R_6$ comme sur le schéma ci-dessous :
 
+\begin{center}
+\includegraphics[width=0.15\textwidth]{montage_amelio_trdel.PNG}
+\end{center}
+
+On peut écrire :
+
+$$I(p) = \dfrac{E-V_F}{p}\dfrac{1+\tau_1p}{R_{eq}(1+\tau_2p)}$$
+
+avec :
+\newline
+\newline
+$\left\{
+\begin{array}{l}
+  R_0 = r_d + R_{on}\\
+  R_{eq} = R_0 + R_6\\
+  \tau_1 = C(r_6+R_6)\\
+  \tau_2 = C(R_6r_6 + R_0(r_6+R_6))
+\end{array}
+\right.$
+\newline
+\newline
+De plus, le flux lumineux est lié au courant par la relation suivante : 
+
+$$\Phi(p) =I(p) \dfrac{k}{1+\tau_0p}$$
+
+On cherche  à ce que $\tau_1$ compense $\tau_0$, soit $\tau_1 = \tau_0$.
+$\tau_0$ est donné par $\tau_0 = \dfrac{t_{r_{DEL}}}{2.2}$ avec $t_{r_{DEL}} = 0.5\mu s$.
+Ainsi, on a : $C(r_6+R_6) = 227ns$.\newline
+
+\underline{Détermination de $r_6$} :\newline
+
+A $t = 0^+$, $i(0^+) = I_{F_{max}} = \dfrac{E-V_F}{r_6//R_6 + r_d + R_{on}}$ avec :\newline
+\newline
+$\left\{
+\begin{array}{l}
+  R_{on} = 1.8\Omega\\
+  r_d = 14\Omega \mbox{    d'après la datasheet}\\
+\end{array}
+\right.$
+\newline
+On fait l'hypothèse que $r_6<<R_6$. On obtient une valeur théorique de $r_6$ de $33\Omega$, mais pour limiter le courant traversant $r_6$ et avoir un meilleur résultat, on prend :
+
+$$r_6 = 10\Omega$$
+
+On en déduit :
+
+$$C = 63nF$$
+
+On met en place le montage suivant :
+
+\begin{center}
+\includegraphics[width=1\textwidth]{Montage_DEL.PNG}
+\end{center}
+
+et on additionne le courant traversant $R_6$ et celui traversant $r_6$. On obtient :
+
+\begin{center}
+\includegraphics[width=1\textwidth]{Courant_diode_opt.png}
+\end{center}
 \newpage
 \chapter{Filtre audio d'entrée}
 
