@@ -5,18 +5,24 @@
 \usepackage[french]{babel}
 \usepackage{lmodern}
 \usepackage{titlesec}
-\usepackage{fancyheadings} 		%% hauts de page 
-\usepackage{graphicx} 			%% images
+\usepackage{fancyheadings} 												%% hauts de page 
+\usepackage{graphicx} 													%% images
 \usepackage[left=2.5cm,right=2cm,top=2cm,bottom=2cm]{geometry}			%% marges
 \usepackage{amsmath, amsfonts, amssymb, mathrsfs, verbatim, amsthm}		%% math
-\usepackage{caption} 			%% légende image
-\usepackage{tabularx}
+\usepackage{caption} 													%% légende image
+\usepackage{tabularx}													%% tableau
 \usepackage{xcolor}
 
-\usepackage{wrapfig} %image milieu text
+\usepackage{wrapfig} 													%% image milieu text
 
 
 \usepackage[colorlinks=true,pdfstartview=FitV,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+
+\definecolor{green}{HTML}{C2E15F}
+\definecolor{orange}{HTML}{FDA333}
+\definecolor{lotof}{HTML}{A9D0F5}
+\definecolor{red}{HTML}{DE0606}
 
 
 
@@ -36,8 +42,11 @@
 { \large \bfseries L'ÉMETTEUR\\[0.4cm] }
 \rule{\linewidth}{0.5mm} \\[1.5cm]
 
+\begin{center}
+%\includegraphics[width=0.8\textwidth]{DEL.jpg}
+\end{center}
 
-\hspace{6cm}
+
 \noindent
 \center
 \begin{minipage}{0.4\textwidth}
@@ -71,7 +80,8 @@
 \flushleft        
 \newpage
 
-
+\addcontentsline{toc}{chapter}{Introduction}
+\setcounter{tocdepth}{3}
 \tableofcontents
 
 
@@ -82,70 +92,112 @@
 
 \flushleft
 	
-\chapter{Introduction:}
+\chapter*{Introduction:}
 
-\section{But du projet}
 
-\paragraph{}
-
-Le but de ce projet est de pouvoir transmettre un signal sonore, que ce soit de la musique ou des paroles, de manière sans fil. Ici on utilisera des signaux infrarouges ($\lambda$ = 900nm) pour la transmission. Une technique efficace pour transmettre un signal sonore est la modulation en fréquence. En effet, très utilisée pour les radios, cette technique à l'avantage d'être robuste, c'est-à-dire que le signal d'origine sera très peu parasite (en comparaison de la modulation d'amplitude). Au cœur de ce dispositif réside le VCO qui convertie une tension en fréquence de manière linéaire.\\
-
-$$porteuse$$
 
 \paragraph{}
+Le but de ce projet est de concevoir un système d’émission-réception d'un signal audio à distance par une liaison sans fil. On utilisera des signaux infrarouges pour transmettre les données sonores d’une source jusqu’à un récepteur optique. Le système se décompose en deux parties, l’une dédiée à l’émission\footnote{le présent rapport}, et la seconde dédiée à la réception\footnote{détaillée dans un rapport ultérieur}.\\
 
-Pour effectuer une bonne modulation en fréquence, il faut choir $f_0$ (fréquence de la porteuse) grande devant $f_m$ (fréquence du signal à transmettre), qui varie ici de 20Hz à 20kHz. Le cahier des charges nous impose $f_0$ = 240kHz.\\
-\vspace{0.2cm}
-Ainsi, le bloc émetteur sera composé de trois parties : 
-\begin{itemize}
-	\item L'amplificateur audio d'entrée
-	\item L'amplificateur contrôlé en tension (VCO)
-	\item L'amplificateur DEL qui permet de transmettre correctement le signal à la DEL
-\end{itemize}
+\vspace{1cm}
 
-\newpage
+\begin{center}
+\includegraphics[width=1\textwidth]{parties.PNG}
+\end{center}
 
-\section{Rôle du bloc émetteur}
+\vspace{1cm}
 
-\paragraph{}
+\paragraph{} 
+Ce rapport va donc détailler la conception des éléments constituant le module d’émission. La conception de chaque élément sera traitée séparément.
 
-En entrée du bloc, un pré-amplificateur-filtre traite le signal modulant audio à transmettre avant de l'appliquer à la partie principale de notre bloc émetteur : le VCO. C'est lui qui va permettre de fixer la fréquence centrale $f_0$ de notre sous-porteuse, grâce à une variation linéaire de la fréquence selon la loi suivante :\\ 
-$$  \Delta f = K_1A_{vm}V_{ecc}$$
+\paragraph{} 
+On commencera par présenter le cahier des charges, puis étudier l'oscillateur contrôlé par tension\footnote{VCO}. Ensuite on exposera deux structures du VCO, l’une avec attaque en tension, la seconde avec attaque en courant, que l’on comparera pour n’en conserver qu’une  pour notre PCB. La partie suivante sera consacrée au circuit de commande de la diode électroluminescente à transistors bipolaire et à transistor MOS (MOSFET). On terminera par la conception du filtre audio d’entrée.\\
 
-avec  $A_{vm}$ le gain en tension de l'amplificateur audio, $V_{ecc}$ l'amplitude du signal d'entrée et $K_1$ une constante à déterminer.
-Pour réaliser le VCO, il existe deux possibilités : l'attaque en tension et l'attaque en courant ; nous avons choisi l'attaque en tension. Nous verrons les différences que ces deux possibilités apportent. Le signal modulé sera alors transmis jusqu'à une diode électroluminescente à haut rendement dont l'intensité est proportionnelle à son courant instantané de polarisation dans la plage des fréquences de modulation. Le flux lumineux émis par cette DEL sera alors transmis au bloc récepteur de ce système.  De plus, nous alimenterons les transistors et AOP en +5V, afin de ne pas prendre en compte l'impact de la tension $V_{EB}$ maximale admissible des transistors.
+
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{bloc_emet3.PNG}
+\end{center}
+
+\part{Conception du bloc Émetteur}
+
+$ $ 
+\vspace{6cm}
+
+L'émetteur est constitué de trois blocs : \\
+
+\begin{center}
+\includegraphics[width=1\textwidth]{bloc_emet.PNG}
+\end{center}
+
+\paragraph*{}
+
+En entrée, un pré-amplificateur-filtre traite le signal modulant audio à transmettre avant de l'appliquer à la partie principale de notre bloc émetteur : le VCO. C'est lui qui va permettre de fixer la fréquence centrale $f_0$ de notre sous-porteuse, grâce à une variation linéaire de la fréquence selon la loi suivante :\\ 
+
+$$\Delta f = K_1A_{vm}v_{ecc}$$
+
+avec:
+\begin{description}
+\item	$A_{vm}$ le gain en tension de l'amplificateur audio.
+\item $v_{ecc}$ l'amplitude du signal d'entrée.
+\item $K_1$ gain de conversion du VCO.
+\end{description}
+
+
+\vspace{0.5cm}
+Pour réaliser le VCO, il existe deux possibilités, structure avec une attaque en tension, avec une attaque en courant. Nous verrons les différences que ces deux possibilités apportent. Le signal modulé sera alors transmis jusqu'à une diode électroluminescente à haut rendement dont l'intensité est proportionnelle à son courant instantané de polarisation dans la plage des fréquences de modulation. Le flux lumineux émis par cette DEL sera alors transmis au bloc récepteur.\\
+\vspace{0.5cm}
+Nous alimenterons les transistors et AOP en +5V, afin de ne pas prendre en compte l'impact de la tension $V_{EB}$ maximale admissible des transistors.
 
 \chapter{Cahier des charges bloc émetteur}
 
-\section{amplificateur audio}
+\section{Le filtre audio d'entrée}
 
-Ce circuit reçoit le signal fourni par la source audio et le transmet au VCO. Il doit satisfaire aux exigences suivantes :  
+Ce circuit reçoit le signal d'entrée et le transmet au VCO. Il doit satisfaire aux exigences suivantes :  
 \begin{itemize}
 	\item Résistance d'entrée $R_e$ = 50k$\Omega$ à la fréquence moyenne $f_m$ = 400Hz.
 
-	\item Il doit comporter une bande passante à -3dB $\in$ [50Hz ; 6kHz] ($1^{er}$ ordre) et une pré-accentuation sur la gamme de fréquences [800 Hz ; 6kHz].\\
+	\item Limiter la bande passante aux fréquences f $\in$ [50Hz ; 6kHz], et pré-accentuer sur la plage de fréquences [800 Hz ; 6kHz] afin d'optimiser le rapport signal sur bruit, en respectant le gabarit suivant:\\
 
+\begin{center}
+\includegraphics[width=0.8\textwidth]{gabarit.PNG}
+\end{center}
 
-$$gabarits$$
-
-	\item Un potentiomètre $P_1$ (4.7 k$\Omega$) pour régler le volume sonore.
+	\item Permettre de régler le volume sonore grâce à un potentiomètre $P_1$ (4.7 k$\Omega$) .
 	
 \end{itemize}
 
-\section{VCO}
+\section{Le modulateur FM : VCO}
+\paragraph{}
+Le modulateur FM qui effectue donc la conversion tension-fréquence est le cœur du bloc émetteur. La modulation sera effectuée par un oscillateur commandé en tension (VCO), en respectant les critères suivants :
+\begin{itemize}
+\item Fréquence de la porteuse $f_0$=240kHz .
+\item Présence d’un potentiomètre permettant de faire varier la fréquence de la porteuse sur une plage $\Delta f=\pm 25 \%$.
+\item Pour un signal de 400 Hz on aura =7.5 kHz avec $v_e$(t)=0.5V.
+\item Respecter la relation suivante:
+\begin{center}
+$\Delta$f = $K_1$\footnote{Le gain de conversion.}$A_{vm}$$v_{ecc}$
+\end{center}
+\end{itemize}
 
-L'oscillateur contrôlé par tension qui effectue donc la conversion tension-fréquence est le cœur du bloc émetteur. Le dispositif devra comporter un potentiomètre $P_0$ qui permettra d'ajuster la fréquence centrale du VCO dans la plage $f_0$ $\pm$25$\%$ environ. On déterminera de plus le gain de conversion du VCO $K_1$ (Hz.$V^{-1}$).
 
 \section{l'amplificateur DEL}
-
+\paragraph{}
 Le circuit peut comporter deux composants actifs : le premier sert d'adaptateur et le second pilote la diode électroluminescente (soit CQY 89 A II de RTC, soit OD8811 Opto Diode corp). Le courant d'excitation moyen de la DEL est $I_0$ $\approx$ 50mA $\pm$20$\%$, le courant crête-à-crête sera donc de 100mA.
+% * <man_lot@yahoo.com> 2017-11-18T17:03:43.205Z:
+%
+% ^.
 Remarque :  le gain en tension $A_{vm}$ de l'amplificateur audio pour $f_m$ = 400Hz doit être tel que $\Delta f$= $\pm$7.5kHz= $K_1A_{vm}$.
 
+
+\newpage
 \section{Synthèse}
 
 Voici un récapitulatif du cahier des charges de l'émetteur.\\
+\begin{center}
+\includegraphics[width=1\textwidth]{resume.PNG}
+\end{center}
 
-$$Recap$$
 
 
 \chapter{Réalisation de l'émetteur}
@@ -524,12 +576,6 @@ $$t_r = 180ns$$
 
 \begin{center}
 \includegraphics[width=0.4\textwidth]{commutation_Q6.PNG}
-% * <man_lot@yahoo.com> 2017-11-17T12:32:52.449Z:
-%
-% ^.
-% * <man_lot@yahoo.com> 2017-11-17T12:32:45.466Z:
-%
-% ^.
 \end{center}
 
 $C_{comp}$ sert à diminuer le temps de commutation de $Q_6$.\\
