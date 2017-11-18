@@ -21,7 +21,7 @@
 
 \definecolor{green}{HTML}{C2E15F}
 \definecolor{orange}{HTML}{FDA333}
-\definecolor{lotof}{HTML}{A9D0F5}
+\definecolor{lotof}{HTML}{CEECF5}
 \definecolor{red}{HTML}{DE0606}
 
 
@@ -30,7 +30,7 @@
 \begin{document}
 
 
-\center {\large Électronique et Traitement du Signal}\\[0.5cm]\center \includegraphics[width=0.8\textwidth]{inpn7logo.pdf}\\[5cm]
+\center {\large Électronique et Traitement du Signal}\\[0.5cm]\center \includegraphics[width=0.8\textwidth]{inpn7logo.pdf}\\[2cm]
 
 
 
@@ -40,10 +40,10 @@
 \rule{\linewidth}{0.5mm} \\[0.4cm]
 { \huge \bfseries CIRCUITS ÉLECTRONIQUE ASSOCIES A UNE LIAISON OPTOÉLECTRONIQUE A MODULATION DE FRÉQUENCE\\[0.4cm] }
 { \large \bfseries L'ÉMETTEUR\\[0.4cm] }
-\rule{\linewidth}{0.5mm} \\[1.5cm]
+\rule{\linewidth}{0.5mm} \\[1cm]
 
 \begin{center}
-%\includegraphics[width=0.8\textwidth]{DEL.jpg}
+\includegraphics[width=1\textwidth]{led.jpg}
 \end{center}
 
 
@@ -211,18 +211,18 @@ Voici un récapitulatif du cahier des charges de l'émetteur.\\
 \includegraphics[width=1\textwidth]{multivib.PNG}
 \end{center}
 
-
+\paragraph{}
 On suppose qu'à t = 0, $T_1$ est passant, et par conséquent $T_2$ est bloqué. La tension $V_{B2}$ est alors égale à $V_T$-(E-$V_{CEsat}$). \\
 \vspace{0.4cm}
 
 $\rightarrow$ Calculons dans un premier temps $R_{C1}$:
 
-$$R_{C1} = \dfrac{E-V_{C1}}{I_{C1}} \geq \dfrac{E-V_{CEsat}}{I_{Csat}^{max}}$$
+$$R_{C1} = \dfrac{E-V_{C1}}{I_{C1}} \geq \dfrac{E-V_{CEsat}}{I_{Csat}^{max}}$$\\
 
-Avec: $I_{Csat}^{max}$ = 10 mA et $V_{CEsat}$ = 0.2 V (valeur lue sur la datasheet, qu'on négligera devant E afin de simplifier les calcules).\\
+Avec: $I_{Csat}^{max}$ = 10 mA et $V_{CEsat}$ = 0.2 V\footnote{ valeur lue sur la datasheet, qu'on négligera devant E afin de simplifier les calcules.}.\\
 On trouve:
 $$R_{C1} \geq 500 \Omega$$
-On prendra \hspace{5.3cm} $R_{C1} = 560 \Omega$ \\
+On prendra \hspace{5.25cm} \colorbox{lotof}{$R_{C1} = 560 \Omega$} \\
 
 \vspace{0.5cm}
 $\rightarrow$ Calculons maintenant $R_B$:\\
@@ -233,7 +233,7 @@ On prendra $\beta _{min} =60$\\
 
 On a :
 $$R_{B1}=\dfrac{\frac{E}{2}-V_{B1}}{I_{B1}}$$
-Ainsi: \hspace{2.5cm} $R_{B1} < \beta _{min} \dfrac{\frac{E}{2}-V_{T}}{I_{Csat}^{max}}$ \hspace{0.6cm} donc \hspace{0.6cm} $R_{B1}<11.4k \Omega$\\
+Ainsi: \hspace{2.6cm} $R_{B1} < \beta _{min} \dfrac{\frac{E}{2}-V_{T}}{I_{Csat}^{max}}$ \hspace{0.6cm} donc \hspace{0.6cm} $R_{B1}<11.4k \Omega$\\
 
 On prend:
 $$R_{B1} = 10k \Omega $$
@@ -983,7 +983,15 @@ On obtient le diagramme de Bode suivant sur PSpice :
 
 Le gain plateau vaut, à 400Hz : $20log(Avm) = -20.6dB$.
 
+
+
+\begin{center}
+\includegraphics[width=1\textwidth]{pcb.PNG}
+\end{center}
+
 \end{document}
+
+
 
 % * <man_lot@yahoo.com> 2017-11-13T11:41:30.746Z:
 %
